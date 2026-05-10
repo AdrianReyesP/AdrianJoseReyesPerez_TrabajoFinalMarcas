@@ -110,3 +110,63 @@ app.post('/aldeas', (req, res) => {
     aldeas.push(nuevaAldea);
     res.status(201).json(nuevaAldea); // Código 201 Created [cite: 55]
 });
+
+
+// --- ENDPOINTS RECURSO SECUNDARIO (TROPAS) ---
+
+// 1. Obtener todas las tropas [Requisito 3.2]
+
+app.get('/tropas', (req, res) => {
+    res.status(200).json(tropas); // [cite: 54]
+});
+
+// 2. Obtener todas las tropas de una aldea concreta [Requisito 3.2]
+// Ejemplo: /aldeas/1/tropas
+
+app.get('/aldeas/:id/tropas', (req, res) => {
+    const aldeaId = parseInt(req.params.id);
+    const tropasFiltradas = tropas.filter(t => t.aldea_id === aldeaId);
+    
+    if (tropasFiltradas.length > 0) {
+        res.status(200).json(tropasFiltradas);
+    } else {
+        // Si no hay tropas o la aldea no existe [cite: 57]
+        res.status(404).json({ mensaje: "No se encontraron tropas para esta aldea" });
+    }
+});
+
+// 3. Crear una nueva tropa vinculada a una aldea [Requisito 3.3]
+
+app.post('/tropas', (req, res) => {
+    const { nombre, nivel, tipo, aldea_id } = req.body;
+
+    // Validación de campos obligatorios [cite: 56]
+    if (!nombre || !aldea_id) {
+        return res.status(400).json({ mensaje: "Faltan datos: nombre y aldea_id son obligatorios" });
+    }
+
+    const nuevaTropa = {
+        id: tropas.length + 1,
+        nombre,
+        nivel: nivel || 1,
+        tipo: tipo || "Terrestre",
+        aldea_id: parseInt(aldea_id)
+    };
+
+    tropas.push(nuevaTropa);
+    res.status(201).json(nuevaTropa); // [cite: 55]
+});
+
+// 4. Eliminar una tropa [Requisito 3.4]
+
+app.delete('/tropas/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const indice = tropas.findIndex(t => t.id === id);
+
+    if (indice !== -1) {
+        tropas.splice(indice, 1);
+        res.status(200).json({ mensaje: "Tropa eliminada correctamente" });
+    } else {
+        res.status(404).json({ mensaje: "La tropa con ese ID no existe" });
+    }
+});
