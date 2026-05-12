@@ -152,3 +152,48 @@ app.delete('/tropas/:id', (req, res) => {
         res.status(404).json({ mensaje: "La tropa con ese ID no existe" });
     }
 });
+
+// --- ENDPOINTS DE ESTADÍSTICAS Y UTILIDADES ---
+
+// 1. Obtener el total de registros de cada recurso [Requisito 3.46]
+
+app.get('/stats/total', (req, res) => {
+    res.status(200).json({
+        total_aldeas: aldeas.length,
+        total_tropas: tropas.length
+    });
+});
+
+// 2. Calcular la media de nivel de ayuntamiento [Requisito 3.44]
+
+app.get('/stats/media-th', (req, res) => {
+    if (aldeas.length === 0) return res.status(200).json({ media: 0 });
+    
+    const suma = aldeas.reduce((acc, aldea) => acc + aldea.nivelAyuntamiento, 0);
+    const media = suma / aldeas.length;
+    
+    res.status(200).json({ 
+        mensaje: "Media de nivel de Ayuntamiento",
+        valor: media.toFixed(2) 
+    });
+});
+
+// 3. Obtener las N aldeas con más copas (puntosControl) [Requisito 3.45]
+// Ejemplo: /stats/top?n=3
+
+app.get('/stats/top', (req, res) => {
+    const n = parseInt(req.query.n) || 1;
+    const topAldeas = [...aldeas]
+        .sort((a, b) => b.puntosControl - a.puntosControl)
+        .slice(0, n);
+    
+    res.status(200).json(topAldeas);
+});
+
+// --- MANEJO DE ERRORES GLOBAL [Requisito 4] ---
+// Este middleware captura cualquier error inesperado para evitar que el servidor rompa
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ mensaje: "Error inesperado del servidor" }); // Código 500 
+});
