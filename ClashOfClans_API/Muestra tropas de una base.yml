@@ -1,5 +1,5 @@
 info:
-  name: Obtener todas las aldeas, Obtener aldea, buscar aldea por nombre, crear nueva aldea
+  name: Muestra tropas de una base
   type: http
   seq: 1
 

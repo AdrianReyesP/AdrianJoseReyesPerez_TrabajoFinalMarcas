@@ -42,7 +42,7 @@ let tropas = [
 // --- RUTAS DE PRUEBA ---
 
 app.get('/', (req, res) => {
-    res.send('API de Clash of Clans funcionando ⚔️');
+    res.send('API de Clash of Clans funcionando ');
 });
 
 // Arrancar el servidor con mensaje de confirmación [cite: 12]
@@ -54,16 +54,27 @@ app.listen(PORT, () => {
 
 app.get('/aldeas', (req, res) => {
     // Empezamos con una copia de todas las aldeas
+    
     let resultados = [...aldeas];
 
-    // 1. Filtrar por texto: Búsqueda por Clan [Requisito 3.5.1]
+// Obtener una sola aldea por su ID [Requisito 3.3]
+
+app.get('/aldeas/:id', (req, res) => {
+    const aldea = aldeas.find(a => a.id === parseInt(req.params.id));
+    if (aldea) res.status(200).json(aldea);
+    else res.status(404).json({ mensaje: "Aldea no encontrada" });
+});
+
+
+    // 1. Filtrar por texto: Búsqueda por Clan [Requisito 3.5.2]
+    
     if (req.query.clan) {
         resultados = resultados.filter(a => 
             a.clan.toLowerCase().includes(req.query.clan.toLowerCase())
         );
     }
 
-    // 2. Filtrar por rango numérico: nivelAyuntamiento [Requisito 3.5.2]
+    // 2. Filtrar por rango numérico: nivelAyuntamiento [Requisito 3.5.3]
     if (req.query.minTH) {
         resultados = resultados.filter(a => a.nivelAyuntamiento >= parseInt(req.query.minTH));
     }
@@ -78,6 +89,7 @@ app.get('/aldeas', (req, res) => {
     }
 
     // 4. Ordenar por campo concreto y modo (asc/desc) [Requisito 3.5.4]
+
     if (req.query.ordenarPor) {
         const campo = req.query.ordenarPor;
         const modo = req.query.modo === 'desc' ? -1 : 1;
@@ -91,6 +103,31 @@ app.get('/aldeas', (req, res) => {
 
     // Enviamos los resultados (filtrados o no) con código 200
     res.status(200).json(resultados);
+});
+
+// 5. Crear una nueva aldea [Requisito 3.3]
+
+app.post('/aldeas', (req, res) => {
+    const { nombre, nivelAyuntamiento, Copas, constructoras, escudoActivo, clan, nivelMuros } = req.body;
+
+    // Validación de campos obligatorios (Rúbrica: Gestión de errores 400)
+    if (!nombre || !nivelAyuntamiento) {
+        return res.status(400).json({ mensaje: "Faltan datos obligatorios: nombre y nivelAyuntamiento" });
+    }
+
+    const nuevaAldea = {
+        id: aldeas.length + 1,
+        nombre,
+        nivelAyuntamiento,
+        Copas: Copas || 0,
+        constructoras: constructoras || 2,
+        escudoActivo: escudoActivo || false,
+        clan: clan || "Sin Clan",
+        nivelMuros: nivelMuros || 1
+    };
+
+    aldeas.push(nuevaAldea);
+    res.status(201).json(nuevaAldea); // 201 significa "Recurso creado"
 });
 
 

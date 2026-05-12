@@ -1,0 +1,31 @@
+info:
+  name: Crea nueva aldea
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: http://localhost:2505/aldeas
+  params:
+    - name: ""
+      value: ""
+      type: query
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Aldea de Prueba",
+        "nivelAyuntamiento": 10,
+        "Copas": 2000,
+        "constructoras": 4,
+        "escudoActivo": true,
+        "clan": "Los Guerreros",
+        "nivelMuros": 9
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
