@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 const PORT = 2505;
 
-// Middleware para procesar JSON
+// Middleware para procesar JSON, de esta forma al usar bruno entiende el código, digamos que es un traductor.
+
 app.use(express.json());
 
 // --- DATOS INICIALES ---
@@ -96,31 +97,67 @@ app.get('/buscar-aldea', (req, res) => {
     else res.status(404).json({ mensaje: "Aldea no encontrada" });
 });
 
-// 3. Obtener aldea por ID [Requisito 3.2]
 
-app.get('/aldeas/:id', (req, res) => {
-    const aldea = aldeas.find(a => a.id === parseInt(req.params.id));
-    if (aldea) res.status(200).json(aldea);
-    else res.status(404).json({ mensaje: "ID no encontrado" });
-});
-
-// 4. Crear nueva aldea [Requisito 3.3]
+// 3. Crear una nueva aldea [Requisito 3.3] - Validación Estricta //Cambio: antes podiamos crear una nueva base exceptuando algun cambio, ahora ya no, cogemos todos los campos utilizados
+//y los validamos para que sean obligatorios, luego de la validación se crea la base.
 
 app.post('/aldeas', (req, res) => {
-    const { nombre, nivelAyuntamiento } = req.body;
-    if (!nombre || !nivelAyuntamiento) {
-        return res.status(400).json({ mensaje: "Faltan datos: nombre y nivelAyuntamiento son obligatorios" });
+
+    // Extraemos todos los campos necesarios del cuerpo de la petición
+
+    const { 
+        nombre, 
+        nivelAyuntamiento, 
+        Copas, 
+        constructoras, 
+        escudoActivo, 
+        clan, 
+        nivelMuros 
+    } = req.body;
+
+    // Validación de TODOS los campos obligatorios
+    // Usamos !== undefined para los campos que pueden ser 0 o false
+
+    if (
+        !nombre || 
+        !nivelAyuntamiento || 
+        Copas === undefined || 
+        !constructoras || 
+        escudoActivo === undefined || 
+        !clan || 
+        !nivelMuros
+    ) {
+
+        return res.status(400).json({ 
+            mensaje: "Error: Faltan datos obligatorios. La aldea debe tener: nombre, nivelAyuntamiento, Copas, constructoras, escudoActivo, clan y nivelMuros" 
+
+        });
     }
-    const nuevaAldea = { id: aldeas.length + 1, ...req.body };
+
+    // Si pasa la validación, construimos el objeto
+    const nuevaAldea = {
+        id: aldeas.length + 1,
+        nombre,
+        nivelAyuntamiento,
+        Copas,
+        constructoras,
+        escudoActivo,
+        clan,
+        nivelMuros
+    };
+
     aldeas.push(nuevaAldea);
-    res.status(201).json(nuevaAldea);
+    res.status(201).json(nuevaAldea); // 201 significa "Recurso creado"
 });
+
 
 // --- ENDPOINTS RECURSO SECUNDARIO (TROPAS) ---
 
 app.get('/tropas', (req, res) => {
     res.status(200).json(tropas);
 });
+
+// Aqui vemos las tropas que tiene cada aldea, la podemos ver usando el id de la base, mostrándonos todas las tropas que tiene la aldea
 
 app.get('/aldeas/:id/tropas', (req, res) => {
     const aldeaId = parseInt(req.params.id);
@@ -129,13 +166,39 @@ app.get('/aldeas/:id/tropas', (req, res) => {
     else res.status(404).json({ mensaje: "No hay tropas para esta aldea" });
 });
 
+
+// 3. Crear una nueva tropa con requisitos estrictos de forma que no podamos crear la tropa si no tenemos todos los campos necesarios
+
 app.post('/tropas', (req, res) => {
-    const { nombre, aldea_id } = req.body;
-    if (!nombre || !aldea_id) return res.status(400).json({ mensaje: "Faltan datos" });
-    const nueva = { id: tropas.length + 1, ...req.body };
-    tropas.push(nueva);
-    res.status(201).json(nueva);
+
+    // Extraigo los campos necesarios
+
+    const { nombre, nivel, tipo, aldea_id } = req.body;
+
+    // VALIDACIÓN: No deja crear si falta NOMBRE, NIVEL, TIPO o ALDEA_ID
+
+    if (!nombre || nivel === undefined || !tipo || !aldea_id) {
+        return res.status(400).json({ 
+            mensaje: "Error: Datos incompletos. Se requiere: nombre, nivel, tipo y aldea_id" 
+        });
+    }
+
+    // Creamos el objeto nuevo
+
+    const nuevaTropa = {
+        id: tropas.length + 1, // Generación automática del ID
+        nombre: nombre,
+        nivel: nivel,
+        tipo: tipo,
+        aldea_id: parseInt(aldea_id)
+    };
+
+    // Respuesta de éxito
+    res.status(201).json(nuevaTropa);
 });
+
+
+// Eliminamos cualquier tropa mediante el id de la misma
 
 app.delete('/tropas/:id', (req, res) => {
     const id = parseInt(req.params.id);
@@ -148,11 +211,16 @@ app.delete('/tropas/:id', (req, res) => {
     }
 });
 
+
 // --- ESTADÍSTICAS ---
+
+// Vemos el numero de aldeas y tropas que tenemos creadas 
 
 app.get('/stats/total', (req, res) => {
     res.status(200).json({ total_aldeas: aldeas.length, total_tropas: tropas.length });
 });
+
+//Aqui calculamos la media que hacen la suma de todos los ayuntamientos de todas las cuentas.
 
 app.get('/stats/media-th', (req, res) => {
     if (aldeas.length === 0) return res.status(200).json({ media: 0 });
@@ -161,7 +229,7 @@ app.get('/stats/media-th', (req, res) => {
 });
 
 
-// 3. Obtener las N aldeas con más copas [Requisito 3.4.5]
+// Obtenemos una lista con las aldeas de mayor a menor numero de copas 
 
 app.get('/stats/top', (req, res) => {
     const n = parseInt(req.query.n) || 1;
@@ -173,6 +241,7 @@ app.get('/stats/top', (req, res) => {
 
     res.status(200).json(topAldeas);
 });
+
 
 // --- MANEJO DE ERRORES Y ARRANQUE ---
 

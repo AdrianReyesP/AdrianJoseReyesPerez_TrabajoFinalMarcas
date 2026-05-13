@@ -1,0 +1,199 @@
+opencollection: 1.0.0
+info:
+  name: ClashOfClans_API
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ''
+      port: ''
+      auth:
+        username: ''
+        password: ''
+      bypassProxy: ''
+items:
+  - info:
+      name: Crea nueva aldea
+      type: http
+      seq: 7
+    http:
+      method: POST
+      url: http://localhost:2505/aldeas
+      params:
+        - name: ''
+          value: ''
+          type: query
+      body:
+        type: json
+        data: |-
+          {
+            "nombre": "Aldea de Prueba",
+            "nivelAyuntamiento": 10,
+            "Copas": 2000,
+            "constructoras": 4,
+            "escudoActivo": true,
+            "clan": "Los Guerreros",
+            "nivelMuros": 9
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: 'Crea tropa '
+      type: http
+      seq: 8
+    http:
+      method: POST
+      url: http://localhost:2505/tropas
+      body:
+        type: json
+        data: |-
+          {
+            "nombre": "P.E.K.K.A",
+            "nivel": 5,
+            "tipo": "Terrestre",
+            "aldea_id": 1
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Elimina tropa
+      type: http
+      seq: 4
+    http:
+      method: DELETE
+      url: http://localhost:2505/tropas/1
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Media de nivel de TH
+      type: http
+      seq: 9
+    http:
+      method: GET
+      url: http://localhost:2505/stats/media-th
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: 'Muestra aldea por nombre '
+      type: http
+      seq: 6
+    http:
+      method: GET
+      url: http://localhost:2505/buscar-aldea?nombre=La Fortaleza
+      params:
+        - name: nombre
+          value: La Fortaleza
+          type: query
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Muestra estadisticas
+      type: http
+      seq: 5
+    http:
+      method: GET
+      url: http://localhost:2505/stats/total
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Muestra todas las aldeas
+      type: http
+      seq: 2
+    http:
+      method: GET
+      url: http://localhost:2505/aldeas/
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Muestra tropas de una base
+      type: http
+      seq: 1
+    http:
+      method: GET
+      url: http://localhost:2505/aldeas/1/tropas
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Muestra tropas
+      type: http
+      seq: 3
+    http:
+      method: GET
+      url: http://localhost:2505/tropas
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Obtener todas las aldeas, Obtener aldea, buscar aldea por nombre, crear nueva aldea
+      type: http
+      seq: 1
+    http:
+      method: GET
+      url: http://localhost:2505/aldeas/1/tropas
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
+      name: Top aldea por copas
+      type: http
+      seq: 10
+    http:
+      method: GET
+      url: http://localhost:2505/stats/top?n=2
+      params:
+        - name: 'n'
+          value: '2'
+          type: query
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+bundled: true
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    exportedAt: '2026-05-13T09:26:47.297Z'
+    exportedUsing: Bruno

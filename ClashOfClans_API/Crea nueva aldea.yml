@@ -14,13 +14,13 @@ http:
     type: json
     data: |-
       {
-        "nombre": "Aldea de Prueba",
-        "nivelAyuntamiento": 10,
-        "Copas": 2000,
-        "constructoras": 4,
+        "nombre": "Adrii33",
+        "nivelAyuntamiento": 18,
+        "Copas": 4600,
+        "constructoras": 6,
         "escudoActivo": true,
         "clan": "Los Guerreros",
-        "nivelMuros": 9
+        "nivelMuros" : 17
       }
   auth: inherit
 
